@@ -1,5 +1,7 @@
 import { createServer } from "http-server";
 import { readFile } from "fs";
+import { resolve } from "path";
+import { parse } from "querystring;";
 
 // Roteamento de requisições
 const server = createServer((request, response) => {
@@ -16,14 +18,30 @@ const server = createServer((request, response) => {
 		}
 
 		case `/sign-in`: {
+			const filePath = resolve(__dirname, "./pages/sign-in.html");
 			readFile((error, file) => {
 				if (error) {
 					response.writeHead(500, `Can\'t read HTML file`);
+					response.end();
+					return;
 				}
 			});
 		}
 
 		case `/authenticate`: {
+			// pattern de eventos, processandoo buffer de início ao fim.
+			let data = "";
+			request.on("data", (chunk) => {
+				data += chunk;
+			});
+			request.on("end", () => {
+				console.log(parse(data));
+
+				response.writeHead(301, { Location: "/home" });
+
+				response.end();
+			});
+
 			break;
 		}
 
